@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const mongoose = require('mongoose');
 const userRouter = require('./api/routes/user');
 const offerRouter = require('./api/routes/offer');
+const companyProfileRouter = require('./api/routes/companyProfile');
 
 const app = express();
 mongoose.connect(`mongodb+srv://MaciejZajac2:${process.env.MONGO_ATLAS_PW}@cluster0.plttm.mongodb.net/oferty?retryWrites=true&w=majority`, {
@@ -32,6 +33,7 @@ app.use((req, res, next) => {
 
 
 app.use("/api/user", userRouter);
+app.use("/api/companyProfile", companyProfileRouter);
 app.use("/api/offer", offerRouter);
 
 

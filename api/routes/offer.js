@@ -12,3 +12,4 @@ router.put("/:offerId", checkAuth, checkRoles([roleEnum.company]), offerControll
 router.delete("/:offerId", checkAuth, checkRoles([roleEnum.company]), offerController.deleteOffer)
 
 module.exports = router;
+ 
