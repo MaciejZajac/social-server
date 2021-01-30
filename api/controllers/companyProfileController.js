@@ -66,11 +66,16 @@ exports.updateCompanyProfile = async (req, res) => {
 exports.getCompanyProfiles = async (req, res) => {
 
     try {
-        const foundProfiles = await CompanyProfile.find().select("-__v -updatedAt -socialMedia -technologiesUsed");
+        const { page = 1, limit = 3 } = req.query;
+
+        const foundProfiles = await CompanyProfile.find().select("-__v -updatedAt -socialMedia -technologiesUsed").limit(limit*1).skip((page - 1) * limit);
+        const totalCount = await CompanyProfile.countDocuments();
+        
         console.log("foundProfiles", foundProfiles);
         
         return res.status(200).send({
-            companyProfiles: foundProfiles
+            companyProfiles: foundProfiles,
+            totalCount
         })
 
     } catch (err) {
@@ -83,10 +88,10 @@ exports.getCompanyProfiles = async (req, res) => {
 }
 
 exports.getDetailedCompanyProfile = async (req, res) => {
-    const { userId } = req.params;
+    const { profileId } = req.params;
 
     try {
-        const foundOffer = await CompanyProfile.findOne({owner: userId}).select("-__v -updatedAt").populate("owner", "email");
+        const foundOffer = await CompanyProfile.findById(profileId).select("-__v -updatedAt").populate("owner", "email");
         console.log("foundOffer", foundOffer);
         if(!foundOffer) {
             return res.status(404).send({

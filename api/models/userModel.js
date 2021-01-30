@@ -20,6 +20,12 @@ const userCompanyModel = mongoose.Schema({
     companyUrl: {
         type: String
     },
+    active: {
+        type: Boolean,
+        default: false
+    },
+    activeToken: String,
+    activeExpires: Date
 }, {
     
     timestamps: true

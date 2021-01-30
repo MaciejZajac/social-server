@@ -12,6 +12,7 @@ router.post("/login", userController.loginUser)
 // company user
 router.get("/", userController.getUsers)
 router.post("/register", userController.registerUser)
+router.get("/active/:activeToken", userController.activateUser)
 router.patch("/:userId", checkAuth, checkRoles([roleEnum.company]), userController.updateUser)
 router.delete("/:userId", checkAuth, checkRoles([roleEnum.company]), userController.deleteUser)
 

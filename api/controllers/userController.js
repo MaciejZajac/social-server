@@ -1,8 +1,10 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const crypto = require("crypto");
 const User = require('../models/userModel');
 const roleEnum = require('../helpers/roleEnum');
 const Developer = require('../models/userDeveloperModel');
+const mailer = require('../helpers/mailer');
 
 
 
@@ -76,6 +78,8 @@ exports.registerDeveloper = async (req, res) => {
         });
     }
 };
+
+
 exports.registerUser = async (req, res) => {
     const { email, password } = req.body;
     console.log("email, password", email, password);
@@ -95,16 +99,32 @@ exports.registerUser = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+
         const newUser = new User({
             email,
             password: hashedPassword,
             userRole: roleEnum.company,
         });
 
+        const cryptHash = crypto.randomBytes(20);
+        
+        newUser.activeToken = newUser._id + cryptHash.toString("hex");
+        newUser.activeExpires = Date.now() + 24 * 3600 * 1000; // 24 godziny
+
+        const link = "http://localhost:5000/api/user/active/" + newUser.activeToken;
+
+        mailer({
+            to: req.body.email,
+            subject: "Activation email",
+            html: `Activate account by clicking <a href="${link}">${link}</a>`
+        })
+
+        console.log("cryptHash", cryptHash);
+
         await newUser.save();
 
         return res.status(201).send({
-            message: 'User created',
+            message: 'User created, activation email has been send',
             user: newUser,
         });
     } catch (err) {
@@ -114,6 +134,46 @@ exports.registerUser = async (req, res) => {
         });
     }
 };
+
+exports.activateUser = async (req, res) => {
+    const {activeToken} = req.params;
+
+    try {
+        const user = await User.findOne({activeToken});
+        if(!user) {
+            return res.status(404).send({
+                message: "There is no such user"
+            });
+
+        }
+        
+        if(user.activeExpires < Date.now()){
+            return res.status(406).send({
+                message: "Activation link expired, try registering again",
+            });
+        }
+
+        user.active = true;
+
+        const savedUser = await user.save();
+
+        console.log("savedUser", savedUser);
+
+        return res.status(200).send({
+            message: "User activated",
+            user: savedUser._doc
+        })
+
+
+
+    } catch (err) {
+        console.log("err", err);
+        return res.status(500).send({
+            error: err,
+        });
+
+    }
+}
 
 exports.updateUser = async (req, res) => {
     const { userId } = req.params;
