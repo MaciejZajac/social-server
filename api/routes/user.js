@@ -9,7 +9,37 @@ const checkRoles = require("../middleware/check-role");
 router.post("/login", userController.loginUser)
 
 
-// company user
+
+
+/**
+ * @swagger
+ * /user:
+ *   get:
+ *     summary: Retrieve a list of JSONPlaceholder users
+ *     description: Retrieve a list of users from JSONPlaceholder. Can be used to populate a list of fake users when prototyping or testing an API.
+ *     responses:
+ *       200:
+ *         description: A list of users.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalCount: number
+ *                 userList:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       email:
+ *                         type: string
+ *                         description: The user's email.
+ *                         example: "test@test.com"
+ *                       _id:
+ *                         type: string
+ *                         description: The user's id.
+ *                         example: "123451asdg"
+ */
 router.get("/", userController.getUsers)
 router.post("/register", userController.registerUser)
 router.get("/active/:activeToken", userController.activateUser)

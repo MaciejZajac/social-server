@@ -66,7 +66,7 @@ exports.getAllOffers = async (req, res) => {
 exports.getDetailedOffer = async (req, res) => {
     const {offerId} = req.params;
     try {
-        const offer = await Offer.findById(offerId).select("-__v").populate("owner", "_id email");
+        const offer = await Offer.findById(offerId).select("-__v").populate("owner");
         if(!offer) { 
             return res.status(200).send({
                 message: "There is no such offer",

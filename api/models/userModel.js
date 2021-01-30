@@ -20,6 +20,10 @@ const userCompanyModel = mongoose.Schema({
     companyUrl: {
         type: String
     },
+    hasCompanyProfile: {
+        type: Boolean,
+        default: false
+    },
     active: {
         type: Boolean,
         default: false

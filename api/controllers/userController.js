@@ -142,7 +142,7 @@ exports.activateUser = async (req, res) => {
         const user = await User.findOne({activeToken});
         if(!user) {
             return res.status(404).send({
-                message: "There is no such user"
+                message: "There is no matching such user"
             });
 
         }

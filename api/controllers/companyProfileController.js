@@ -1,4 +1,5 @@
 const CompanyProfile = require("../models/companyProfileModel");
+const UserModel = require("../models/userModel");
 
 
 exports.createCompanyProfile = async (req, res) => {
@@ -7,6 +8,15 @@ exports.createCompanyProfile = async (req, res) => {
 
     try {
         const foundOffer = await CompanyProfile.findOne({owner: userId});
+        const owner = await UserModel.findById(userId);
+        
+        if(!owner) {
+            return res.status(404).send({
+                message: "There is no such user"
+            });
+        }
+
+        
         console.log("foundOffer", foundOffer);
 
         if(foundOffer) {
@@ -19,8 +29,10 @@ exports.createCompanyProfile = async (req, res) => {
             companyName, companyDescription, technologiesUsed, socialMedia,
             owner: userId
         })
-
+        owner.hasCompanyProfile = true;
+        
         const profile = await companyProfile.save();
+        await owner.save();
 
         return res.status(201).send({
             message: "Company profile has beed created",
