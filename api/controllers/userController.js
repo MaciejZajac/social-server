@@ -111,7 +111,7 @@ exports.registerUser = async (req, res) => {
         newUser.activeToken = newUser._id + cryptHash.toString("hex");
         newUser.activeExpires = Date.now() + 24 * 3600 * 1000; // 24 godziny
 
-        const link = "http://localhost:5000/api/user/active/" + newUser.activeToken;
+        const link = "http://localhost:3000/activateaccount/" + newUser.activeToken;
 
         mailer({
             to: req.body.email,
@@ -243,6 +243,12 @@ exports.loginUser = async (req, res) => {
         if (!user) {
             return res.status(401).send({
                 message: 'Auth failed',
+            });
+        }
+
+        if(!user.active) {
+            return res.status(403).send({
+                message: 'User not verified',
             });
         }
 

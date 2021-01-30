@@ -3,10 +3,10 @@ const nodemailer = require("nodemailer");
 
 const config = {
     service: "gmail",
-    
+
     auth: {
-        user: "maciej.zajac.197@gmail.com",
-        pass: "IloveKarolcia1"
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASS
     }
 }
 
