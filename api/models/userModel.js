@@ -20,6 +20,14 @@ const userCompanyModel = mongoose.Schema({
     companyUrl: {
         type: String
     },
+    linkedin: { type: String},
+    shortDescription: {
+        type: String
+    },
+    numberOfOffers: {
+        type: Number,
+        default: 0,
+    },
     hasCompanyProfile: {
         type: Boolean,
         default: false

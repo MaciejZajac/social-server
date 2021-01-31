@@ -177,15 +177,11 @@ exports.activateUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
     const { userId } = req.params;
-
-    const updateOps = {};
-
-    for (const ops of req.body) {
-        updateOps[ops.propName] = ops.value;
-    }
+    const reqBody = req.body;
+    
 
     try {
-        const profile = await User.findByIdAndUpdate(userId, { $set: updateOps });
+        const profile = await User.findByIdAndUpdate(userId, {...reqBody});
 
         return res.status(201).send({
             message: 'User has been updated',
@@ -259,11 +255,11 @@ exports.loginUser = async (req, res) => {
                 message: 'Invalid data. Email or password is wrong',
             });
         }
-
         const tokenData = {
             email: user.email,
             userId: user._id,
             userRole: user.userRole,
+            companyName: user.companyName,
         };
         const token = jwt.sign(tokenData, process.env.JWT_KEY, {
             expiresIn: '1h',

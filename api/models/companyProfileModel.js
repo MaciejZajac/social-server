@@ -10,10 +10,7 @@ const companyProfile = mongoose.Schema({
         required: true
     },
     technologiesUsed: [{type: String, required: true}],
-    socialMedia: {
-        facebook: { type: String},
-        linkedIn: { type: String}
-    },
+    
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

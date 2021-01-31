@@ -15,8 +15,8 @@ router.post("/login", userController.loginUser)
  * @swagger
  * /user:
  *   get:
- *     summary: Retrieve a list of JSONPlaceholder users
- *     description: Retrieve a list of users from JSONPlaceholder. Can be used to populate a list of fake users when prototyping or testing an API.
+ *     summary: Retrieve a list of all users
+ *     description: Get a list of all users from a database
  *     responses:
  *       200:
  *         description: A list of users.
@@ -25,7 +25,8 @@ router.post("/login", userController.loginUser)
  *             schema:
  *               type: object
  *               properties:
- *                 totalCount: number
+ *                 totalCount: 
+ *                   type: number
  *                 userList:
  *                   type: array
  *                   items:
@@ -43,7 +44,7 @@ router.post("/login", userController.loginUser)
 router.get("/", userController.getUsers)
 router.post("/register", userController.registerUser)
 router.get("/active/:activeToken", userController.activateUser)
-router.patch("/:userId", checkAuth, checkRoles([roleEnum.company]), userController.updateUser)
+router.put("/:userId", checkAuth, checkRoles([roleEnum.company]), userController.updateUser)
 router.delete("/:userId", checkAuth, checkRoles([roleEnum.company]), userController.deleteUser)
 
 
