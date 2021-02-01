@@ -42,6 +42,7 @@ router.post("/login", userController.loginUser)
  *                         example: "123451asdg"
  */
 router.get("/", userController.getUsers)
+router.get("/current", checkAuth, userController.currentUser)
 router.post("/register", userController.registerUser)
 router.get("/active/:activeToken", userController.activateUser)
 router.put("/:userId", checkAuth, checkRoles([roleEnum.company]), userController.updateUser)

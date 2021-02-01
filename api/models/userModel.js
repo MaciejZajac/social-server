@@ -20,6 +20,9 @@ const userCompanyModel = mongoose.Schema({
     companyUrl: {
         type: String
     },
+    location: {
+        type: String
+    },
     linkedin: { type: String},
     shortDescription: {
         type: String
@@ -28,9 +31,10 @@ const userCompanyModel = mongoose.Schema({
         type: Number,
         default: 0,
     },
-    hasCompanyProfile: {
-        type: Boolean,
-        default: false
+    companyPublicProfile: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "CompanyProfile",
+        default: null
     },
     active: {
         type: Boolean,

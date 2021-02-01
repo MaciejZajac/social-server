@@ -1,58 +1,58 @@
-const CompanyProfile = require("../models/companyProfileModel");
-const UserModel = require("../models/userModel");
-
+const CompanyProfile = require('../models/companyProfileModel');
+const UserModel = require('../models/userModel');
 
 exports.createCompanyProfile = async (req, res) => {
     const { userId } = req.userData;
-    const { companyName, companyDescription, technologiesUsed, socialMedia } = req.body;
-
+    const { companyDescription, skillsInCompany } = req.body;
+    console.log("req.body", req.body);
     try {
-        const foundOffer = await CompanyProfile.findOne({owner: userId});
+        const foundOffer = await CompanyProfile.findOne({ owner: userId });
         const owner = await UserModel.findById(userId);
-        
-        if(!owner) {
+
+        if (!owner) {
             return res.status(404).send({
-                message: "There is no such user"
+                message: 'There is no such user',
             });
         }
 
-        
-        console.log("foundOffer", foundOffer);
+        console.log('foundOffer', foundOffer);
 
-        if(foundOffer) {
+        if (foundOffer) {
             return res.status(406).send({
-                message: "Company already has a profile created"
+                message: 'Company already has a profile created',
             });
         }
-
-        const companyProfile = new CompanyProfile({
-            companyName, companyDescription, technologiesUsed, socialMedia,
-            owner: userId
-        })
-        owner.hasCompanyProfile = true;
         
+        const companyProfile = new CompanyProfile({
+            skillsInCompany,
+            companyDescription,
+            companyOffers: [],
+            owner: userId,
+        });
+
         const profile = await companyProfile.save();
+        owner.companyPublicProfile = profile._id;
         await owner.save();
 
         return res.status(201).send({
-            message: "Company profile has beed created",
+            message: 'Company profile has beed created',
             companyProfile: profile,
         });
-
     } catch (err) {
+        console.log("err", err);
         return res.status(500).send({
-            message: "Something went wrong",
+            message: 'Something went wrong',
             error: err,
         });
     }
-}
+};
 
 exports.updateCompanyProfile = async (req, res) => {
     const { userId } = req.userData;
     const { companyName, companyDescription, technologiesUsed, socialMedia } = req.body;
 
     try {
-        const foundOffer = await CompanyProfile.findOne({owner: userId});
+        const foundOffer = await CompanyProfile.findOne({ owner: userId });
 
         foundOffer.companyName = companyName;
         foundOffer.companyDescription = companyDescription;
@@ -62,65 +62,64 @@ exports.updateCompanyProfile = async (req, res) => {
         const profile = await foundOffer.save();
 
         return res.status(201).send({
-            message: "Company profile has beed updated",
+            message: 'Company profile has beed updated',
             companyProfile: profile,
         });
-
     } catch (err) {
-        console.log("err", err);
+        console.log('err', err);
         return res.status(500).send({
-            message: "Something went wrong",
+            message: 'Something went wrong',
             error: err,
         });
     }
-}
+};
 
 exports.getCompanyProfiles = async (req, res) => {
-
     try {
         const { page = 1, limit = 3 } = req.query;
 
-        const foundProfiles = await CompanyProfile.find().select("-__v -updatedAt -socialMedia -technologiesUsed").limit(limit*1).skip((page - 1) * limit);
+        const foundProfiles = await CompanyProfile.find()
+            .select('-__v -updatedAt -socialMedia -technologiesUsed')
+            .limit(limit * 1)
+            .skip((page - 1) * limit);
         const totalCount = await CompanyProfile.countDocuments();
-        
-        console.log("foundProfiles", foundProfiles);
-        
+
+        console.log('foundProfiles', foundProfiles);
+
         return res.status(200).send({
             companyProfiles: foundProfiles,
-            totalCount
-        })
-
+            totalCount,
+        });
     } catch (err) {
         return res.status(500).send({
-            message: "Something went wrong",
+            message: 'Something went wrong',
             error: err,
         });
-
     }
-}
+};
 
 exports.getDetailedCompanyProfile = async (req, res) => {
     const { profileId } = req.params;
 
     try {
-        const foundOffer = await CompanyProfile.findById(profileId).select("-__v -updatedAt").populate("owner", "email");
-        console.log("foundOffer", foundOffer);
-        if(!foundOffer) {
+        const foundOffer = await CompanyProfile.findById(profileId)
+            .select('-__v -updatedAt')
+            .populate('owner', 'email');
+        console.log('foundOffer', foundOffer);
+        if (!foundOffer) {
             return res.status(404).send({
-                message: "There is no such company Profile"
+                message: 'There is no such company Profile',
             });
         }
 
         return res.status(200).send({
-            companyProfile: foundOffer
-        })
-
+            companyProfile: foundOffer,
+        });
     } catch (err) {
         return res.status(500).send({
-            message: "Something went wrong",
+            message: 'Something went wrong',
             error: err,
         });
-
     }
 };
 
@@ -129,18 +128,15 @@ exports.deleteCompanyProfile = async (req, res) => {
     const { userId } = req.userData;
 
     try {
-        await CompanyProfile.findOneAndRemove({owner: userId, _id: profileId });
+        await CompanyProfile.findOneAndRemove({ owner: userId, _id: profileId });
 
         return res.status(404).send({
-            message: "Offer has been deleted"
+            message: 'Offer has been deleted',
         });
-
-
     } catch (err) {
         return res.status(500).send({
-            message: "Something went wrong",
+            message: 'Something went wrong',
             error: err,
         });
-
     }
-}
+};

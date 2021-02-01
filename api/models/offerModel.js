@@ -1,14 +1,28 @@
 const mongoose = require('mongoose');
 
 const offerModel = mongoose.Schema({
-    title: {
+    jobTitle: {
         type: String,
         required: true
     },
-    description: {
+    jobDescription: {
         type: String,
         required: true
     },
+    pensionFrom: {
+        type: Number,
+        required: true
+    },
+    pensionTo: {
+        type: Number,
+        required: true
+    },
+    requiredSkills: [
+        {
+            type: String
+        }
+    ],
+
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

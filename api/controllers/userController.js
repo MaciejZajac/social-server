@@ -28,7 +28,7 @@ exports.getDevelopers = async (req, res) => {
 exports.getUsers = async (req, res) => {
     try {
         const { page = 1, limit = 5 } = req.query;
-        const userList = await User.find().select('_id email companyName companyUrl').limit(limit*1).skip((page - 1) * limit);
+        const userList = await User.find().select("-__v -updatedAt -activeExpires -password -activeToken").limit(limit*1).skip((page - 1) * limit);
         const totalCount = await User.countDocuments();
         return res.status(200).send({
             userList,
@@ -196,28 +196,49 @@ exports.updateUser = async (req, res) => {
 
 
 exports.updateDeveloper = async (req, res) => {
-    const { userId } = req.params;
+    // const { userId } = req.params;
 
-    const updateOps = {};
+    // const updateOps = {};
 
-    for (const ops of req.body) {
-        updateOps[ops.propName] = ops.value;
-    }
+    // for (const ops of req.body) {
+    //     updateOps[ops.propName] = ops.value;
+    // }
 
-    try {
-        const profile = await updateDeveloper.findByIdAndUpdate(userId, { $set: updateOps });
+    // try {
+    //     const profile = await updateDeveloper.findByIdAndUpdate(userId, { $set: updateOps });
 
-        return res.status(201).send({
-            message: 'User has been updated',
-            user: profile,
+    //     return res.status(201).send({
+    //         message: 'User has been updated',
+    //         user: profile,
+    //     });
+    // } catch (err) {
+        return res.status(500).send({
+            error: err,
         });
+    // }
+};
+
+exports.currentUser = async (req, res) => {
+    const {userId} = req.userData;
+    console.log("userId", userId);
+    try {
+
+        const user = await User.findById(userId).select("-__v -updatedAt -activeExpires -password -activeToken");
+        console.log("user", user);
+
+
+        res.status(200).send({
+            user
+        })
+
+
     } catch (err) {
+        console.log("error", err);
         return res.status(500).send({
             error: err,
         });
     }
-};
-
+}
 
 exports.loginUser = async (req, res) => {
     const { email, password, roleName } = req.body;

@@ -1,25 +1,28 @@
 const Offer = require("../models/offerModel");
-
+const User = require("../models/userModel");
+const CompanyProfile = require("../models/companyProfileModel");
 
 exports.createOffer = async (req, res) => {
 
-    const { title, description} = req.body;
-    const { userId } = req.userData;
+    const { userId, email } = req.userData;
 
-    if(!title || !description) {
-        res.status(406).send({
-            message: "Some fields are missing"
-        })
-    }
+
 
     const offer = new Offer({
-        title,
-        description,
+        ...req.body,
         owner: userId
     })
 
     try {
         const newOffer = await offer.save();
+        const owner = await User.findOne({email});
+        const companyProfile = await CompanyProfile.findOne({owner: userId});
+        companyProfile.companyOffers.push(newOffer._id);
+        owner.numberOfOffers += 1;
+
+        await owner.save();
+        await companyProfile.save();
+
         return res.status(201).send({
             message: "Offer created",
             createdOffer: {
@@ -44,9 +47,9 @@ exports.getAllOffers = async (req, res) => {
         let offerList;
         let totalCount;
         if(!userId){
-            offerList = await Offer.find().select("_id title description owner").populate("owner", "_id email").limit(limit*1).skip((page - 1) * limit);
+            offerList = await Offer.find().select("-__v").populate("owner", "_id email").limit(limit*1).skip((page - 1) * limit);
         } else {
-            offerList = await Offer.find({owner: userId}).select("_id title description owner").populate("owner", "_id email").limit(limit*1).skip((page - 1) * limit);
+            offerList = await Offer.find({owner: userId}).select("-__v").populate("owner", "_id email").limit(limit*1).skip((page - 1) * limit);
         }
         totalCount = await Offer.countDocuments();
 
