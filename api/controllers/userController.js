@@ -5,6 +5,7 @@ const User = require('../models/userModel');
 const roleEnum = require('../helpers/roleEnum');
 const Developer = require('../models/userDeveloperModel');
 const mailer = require('../helpers/mailer');
+const BadRequestError = require('../error/bad-request-error');
 
 
 
@@ -19,9 +20,7 @@ exports.getDevelopers = async (req, res) => {
             totalCount
         });
     } catch (err) {
-        return res.status(500).send({
-            error: err,
-        });
+        next(err);
     }
 };
 
@@ -35,9 +34,7 @@ exports.getUsers = async (req, res) => {
             totalCount
         });
     } catch (err) {
-        return res.status(500).send({
-            error: err,
-        });
+        next(err);
     }
 };
 
@@ -45,18 +42,14 @@ exports.registerDeveloper = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-        return res.status(409).send({
-            message: 'Invalid data. Something is missing',
-        });
+        throw new BadRequestError("Invalid credentials.");
     }
 
     try {
         let user = await Developer.findOne({ email });
 
         if (user) {
-            return res.status(409).send({
-                message: 'Invalid data',
-            });
+            throw new BadRequestError("There is already a user registered with that email.");
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -73,29 +66,23 @@ exports.registerDeveloper = async (req, res) => {
             user: newUser,
         });
     } catch (err) {
-        return res.status(500).send({
-            error: err,
-        });
+        next(err);
     }
 };
 
 
 exports.registerUser = async (req, res) => {
     const { email, password } = req.body;
-    console.log("email, password", email, password);
+
     if (!email || !password) {
-        return res.status(409).send({
-            message: 'Invalid data. Something is missing',
-        });
+        throw new BadRequestError("Invalid credentials.");
     }
 
     try {
         let user = await User.findOne({ email });
 
         if (user) {
-            return res.status(409).send({
-                message: 'Invalid data'
-            });
+            throw new BadRequestError("There is already a user registered with that email.");
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -119,7 +106,6 @@ exports.registerUser = async (req, res) => {
             html: `Activate account by clicking <a href="${link}">${link}</a>`
         })
 
-        console.log("cryptHash", cryptHash);
 
         await newUser.save();
 
@@ -128,10 +114,7 @@ exports.registerUser = async (req, res) => {
             user: newUser,
         });
     } catch (err) {
-        console.log("err", err);
-        return res.status(500).send({
-            error: err,
-        });
+        next(err);
     }
 };
 
@@ -141,23 +124,17 @@ exports.activateUser = async (req, res) => {
     try {
         const user = await User.findOne({activeToken});
         if(!user) {
-            return res.status(404).send({
-                message: "There is no matching such user"
-            });
-
+            throw new BadRequestError("There is no such User in a database");
         }
         
         if(user.activeExpires < Date.now()){
-            return res.status(406).send({
-                message: "Activation link expired, try registering again",
-            });
+            await user.remove();
+            throw new BadRequestError("Authorization token has expired. You must create a new account.");
         }
 
         user.active = true;
 
         const savedUser = await user.save();
-
-        console.log("savedUser", savedUser);
 
         return res.status(200).send({
             message: "User activated",
@@ -167,11 +144,7 @@ exports.activateUser = async (req, res) => {
 
 
     } catch (err) {
-        console.log("err", err);
-        return res.status(500).send({
-            error: err,
-        });
-
+        next(err);
     }
 }
 
@@ -188,9 +161,7 @@ exports.updateUser = async (req, res) => {
             user: profile,
         });
     } catch (err) {
-        return res.status(500).send({
-            error: err,
-        });
+        next(err);
     }
 };
 
@@ -220,33 +191,23 @@ exports.updateDeveloper = async (req, res) => {
 
 exports.currentUser = async (req, res) => {
     const {userId} = req.userData;
-    console.log("userId", userId);
     try {
-
         const user = await User.findById(userId).select("-__v -updatedAt -activeExpires -password -activeToken");
-        console.log("user", user);
 
-
-        res.status(200).send({
+        return res.status(200).send({
             user
         })
 
-
     } catch (err) {
-        console.log("error", err);
-        return res.status(500).send({
-            error: err,
-        });
+        next(err)
     }
 }
 
-exports.loginUser = async (req, res) => {
+exports.loginUser = async (req, res, next) => {
     const { email, password, roleName } = req.body;
 
     if (!email || !password) {
-        return res.status(409).send({
-            message: 'Invalid data. Email or password is missing',
-        });
+        throw new BadRequestError("Invalid credentials.");
     }
 
     try {
@@ -256,44 +217,34 @@ exports.loginUser = async (req, res) => {
         } else if (roleName === 'DEVELOPER') {
             user = await Developer.findOne({ email });
         }
-
         if (!user) {
-            return res.status(401).send({
-                message: 'Auth failed',
-            });
+            throw new BadRequestError("Invalid credentials");
         }
 
         if(!user.active) {
-            return res.status(403).send({
-                message: 'User not verified',
-            });
+            throw new BadRequestError("User is not verified. Check your email with activation link.");
         }
 
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
         if (!isPasswordCorrect) {
-            return res.status(409).send({
-                message: 'Invalid data. Email or password is wrong',
-            });
+            throw new BadRequestError("Invalid credentials");
         }
         const tokenData = {
             email: user.email,
             userId: user._id,
             userRole: user.userRole,
-            companyName: user.companyName,
         };
         const token = jwt.sign(tokenData, process.env.JWT_KEY, {
             expiresIn: '1h',
         });
-
-        res.status(200).send({
+        
+        return res.status(200).send({
             message: 'Auth successful',
             token,
         });
     } catch (err) {
-        return res.status(500).send({
-            error: err,
-        });
+        next(err);
     }
 };
 
@@ -301,13 +252,11 @@ exports.deleteDeveloper = async (req, res) => {
     try {
         await Developer.findByIdAndDelete(req.params.orderId);
 
-        res.status(200).json({
+        return res.status(200).json({
             message: 'User deleted',
         });
     } catch (err) {
-        return res.status(500).send({
-            error: err,
-        });
+        next(err);
     }
 };
 
@@ -320,8 +269,6 @@ exports.deleteUser = async (req, res) => {
             message: 'User deleted',
         });
     } catch (err) {
-        return res.status(500).send({
-            error: err,
-        });
+        next(err);
     }
 };

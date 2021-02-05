@@ -6,7 +6,7 @@ const checkAuth = require("../middleware/check-auth");
 const checkRoles = require("../middleware/check-role");
 
 
-router.post("/login", userController.loginUser)
+router.post("/api/user/login", userController.loginUser)
 
 
 
@@ -41,18 +41,18 @@ router.post("/login", userController.loginUser)
  *                         description: The user's id.
  *                         example: "123451asdg"
  */
-router.get("/", userController.getUsers)
-router.get("/current", checkAuth, userController.currentUser)
-router.post("/register", userController.registerUser)
-router.get("/active/:activeToken", userController.activateUser)
-router.put("/:userId", checkAuth, checkRoles([roleEnum.company]), userController.updateUser)
-router.delete("/:userId", checkAuth, checkRoles([roleEnum.company]), userController.deleteUser)
+router.get("/api/user/", userController.getUsers)
+router.get("/api/user/current", checkAuth, userController.currentUser)
+router.post("/api/user/register", userController.registerUser)
+router.get("/api/user/active/:activeToken", userController.activateUser)
+router.put("/api/user/:userId", checkAuth, checkRoles([roleEnum.company]), userController.updateUser)
+router.delete("/api/user/:userId", checkAuth, checkRoles([roleEnum.company]), userController.deleteUser)
 
 
 // developer user
-router.get("/developers", userController.getDevelopers)
-router.post("/registerDeveloper", userController.registerDeveloper)
-router.patch("/developer/:userId", checkAuth, checkRoles([roleEnum.developer]), userController.updateDeveloper)
-router.delete("/developer/:userId", checkAuth, checkRoles([roleEnum.developer]), userController.deleteDeveloper)
+router.get("/api/user/developers", userController.getDevelopers)
+router.post("/api/user/registerDeveloper", userController.registerDeveloper)
+router.patch("/api/user/developer/:userId", checkAuth, checkRoles([roleEnum.developer]), userController.updateDeveloper)
+router.delete("/api/user/developer/:userId", checkAuth, checkRoles([roleEnum.developer]), userController.deleteDeveloper)
 
 module.exports = router;

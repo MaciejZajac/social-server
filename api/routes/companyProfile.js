@@ -5,11 +5,11 @@ const companyProfileController = require("../controllers/companyProfileControlle
 const checkRoles = require("../middleware/check-role");
 const roleEnum = require("../helpers/roleEnum");
 
-router.get("/", companyProfileController.getCompanyProfiles);
-router.get("/:profileId", companyProfileController.getDetailedCompanyProfile);
-router.post("/", checkAuth, checkRoles([roleEnum.company]), companyProfileController.createCompanyProfile);
-router.put("/:profileId", checkAuth, checkRoles([roleEnum.company]), companyProfileController.updateCompanyProfile);
-router.delete("/:profileId", checkAuth, checkRoles([roleEnum.company]), companyProfileController.deleteCompanyProfile)
+router.get("/api/companyProfile/", companyProfileController.getCompanyProfiles);
+router.get("/api/companyProfile/:profileId", companyProfileController.getDetailedCompanyProfile);
+router.post("/api/companyProfile/", checkAuth, checkRoles([roleEnum.company]), companyProfileController.createCompanyProfile);
+router.put("/api/companyProfile/:profileId", checkAuth, checkRoles([roleEnum.company]), companyProfileController.updateCompanyProfile);
+router.delete("/api/companyProfile/:profileId", checkAuth, checkRoles([roleEnum.company]), companyProfileController.deleteCompanyProfile)
 
 module.exports = router;
  

@@ -43,7 +43,6 @@ exports.getAllOffers = async (req, res) => {
     
     try {
         const { userId, page = 1, limit = 3 } = req.query;
-
         let offerList;
         let totalCount;
         if(!userId){
@@ -59,10 +58,7 @@ exports.getAllOffers = async (req, res) => {
         });
 
     } catch (err) {
-        return res.status(500).send({
-            error: err,
-        });
-
+        next(err);
     }
 }
 
@@ -80,9 +76,7 @@ exports.getDetailedOffer = async (req, res) => {
         });
         
     } catch (err) {
-        return res.status(500).send({
-            error: err,
-        });
+        next(err);
     }
 }
 
@@ -96,14 +90,12 @@ exports.updateOffer = async (req, res) => {
         offer.description = description;
         await offer.save();
 
-        res.status(200).send({
+        return res.status(200).send({
             message: "Offer updated",
             offer
         })
     } catch (err) {
-        return res.status(500).send({
-            error: err,
-        });
+        next(err);
     }
 }
 
@@ -119,8 +111,6 @@ exports.deleteOffer = async (req, res) => {
 
 
     } catch (err) {
-        return res.status(500).send({
-            error: err,
-        });
+        next(err);
     }
 }

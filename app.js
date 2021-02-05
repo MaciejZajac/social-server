@@ -7,15 +7,25 @@ const offerRouter = require('./api/routes/offer');
 const companyProfileRouter = require('./api/routes/companyProfile');
 const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+const NotFoundError = require('./api/error/not-found-error');
+const errorHandler = require('./api/middleware/error-handler');
+const DatabaseConnectionError = require('./api/error/database-connection-error');
 
 const app = express();
-mongoose.connect(`mongodb+srv://MaciejZajac2:${process.env.MONGO_ATLAS_PW}@cluster0.plttm.mongodb.net/oferty?retryWrites=true&w=majority`, {
+
+let mongoURI;
+if (process.env.NODE_ENV === "production") {
+  mongoURI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_ATLAS_PW}@cluster0.plttm.mongodb.net/${process.env.MONGO_DB_PROD}?retryWrites=true&w=majority`;
+} else {
+  mongoURI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_ATLAS_PW}@cluster0.plttm.mongodb.net/${process.env.MONGO_DB_DEVELOPMENT}?retryWrites=true&w=majority`;
+}
+
+mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-}, () => {
-console.log("dbConnected");
+}, (error) => {
+    console.log("dbConnected");
 })
-
 
 const swaggerDefinition = {
     openapi: '3.0.0',
@@ -68,27 +78,15 @@ app.use((req, res, next) => {
 })
 
 
-app.use("/api/user", userRouter);
-app.use("/api/companyProfile", companyProfileRouter);
-app.use("/api/offer", offerRouter);
+app.use(userRouter);
+app.use(companyProfileRouter);
+app.use(offerRouter);
 
 
-app.use((req, res, next) => {
-    const error = new Error("Not found");
-
-    error.status = 404;
-    next(error);
+app.all("*", (req, res) => {
+  throw new NotFoundError();
 })
 
-app.use((error, req, res, next) => {
-    console.log("error", error);
-    res.status(error.status || 500);
-    res.json({
-        error: {
-            message: error.message
-        }
-    })
-})
-
+app.use(errorHandler)
 
 module.exports = app;

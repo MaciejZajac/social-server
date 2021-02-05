@@ -3,7 +3,6 @@ const nodemailer = require("nodemailer");
 
 const config = {
     service: "gmail",
-
     auth: {
         user: process.env.EMAIL,
         pass: process.env.EMAIL_PASS
@@ -13,7 +12,7 @@ const config = {
 const transporter = nodemailer.createTransport(config);
 
 const defaultMail = {
-    from: `Me <maciej.zajac.197@gmail.com>`,
+    from: `Me <${process.env.EMAIL}>`,
     text: "test test"
 };
 

@@ -4,7 +4,7 @@ const UserModel = require('../models/userModel');
 exports.createCompanyProfile = async (req, res) => {
     const { userId } = req.userData;
     const { companyDescription, skillsInCompany } = req.body;
-    console.log("req.body", req.body);
+
     try {
         const foundOffer = await CompanyProfile.findOne({ owner: userId });
         const owner = await UserModel.findById(userId);
@@ -15,7 +15,6 @@ exports.createCompanyProfile = async (req, res) => {
             });
         }
 
-        console.log('foundOffer', foundOffer);
 
         if (foundOffer) {
             return res.status(406).send({
@@ -39,11 +38,7 @@ exports.createCompanyProfile = async (req, res) => {
             companyProfile: profile,
         });
     } catch (err) {
-        console.log("err", err);
-        return res.status(500).send({
-            message: 'Something went wrong',
-            error: err,
-        });
+        next(err);
     }
 };
 
@@ -66,11 +61,7 @@ exports.updateCompanyProfile = async (req, res) => {
             companyProfile: profile,
         });
     } catch (err) {
-        console.log('err', err);
-        return res.status(500).send({
-            message: 'Something went wrong',
-            error: err,
-        });
+        next(err);
     }
 };
 
@@ -84,17 +75,13 @@ exports.getCompanyProfiles = async (req, res) => {
             .skip((page - 1) * limit);
         const totalCount = await CompanyProfile.countDocuments();
 
-        console.log('foundProfiles', foundProfiles);
 
         return res.status(200).send({
             companyProfiles: foundProfiles,
             totalCount,
         });
     } catch (err) {
-        return res.status(500).send({
-            message: 'Something went wrong',
-            error: err,
-        });
+        next(err);
     }
 };
 
@@ -105,7 +92,7 @@ exports.getDetailedCompanyProfile = async (req, res) => {
         const foundOffer = await CompanyProfile.findById(profileId)
             .select('-__v -updatedAt')
             .populate('owner', 'email');
-        console.log('foundOffer', foundOffer);
+            
         if (!foundOffer) {
             return res.status(404).send({
                 message: 'There is no such company Profile',
@@ -116,10 +103,7 @@ exports.getDetailedCompanyProfile = async (req, res) => {
             companyProfile: foundOffer,
         });
     } catch (err) {
-        return res.status(500).send({
-            message: 'Something went wrong',
-            error: err,
-        });
+        next(err);
     }
 };
 
@@ -133,10 +117,8 @@ exports.deleteCompanyProfile = async (req, res) => {
         return res.status(404).send({
             message: 'Offer has been deleted',
         });
+
     } catch (err) {
-        return res.status(500).send({
-            message: 'Something went wrong',
-            error: err,
-        });
+        next(err);
     }
 };

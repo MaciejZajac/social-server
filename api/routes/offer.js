@@ -5,11 +5,11 @@ const offerController = require("../controllers/offerController");
 const checkRoles = require("../middleware/check-role");
 const roleEnum = require("../helpers/roleEnum");
 
-router.post("/", checkAuth, checkRoles([roleEnum.company]), offerController.createOffer)
-router.get("/", offerController.getAllOffers)
-router.get("/:offerId", offerController.getDetailedOffer)
-router.put("/:offerId", checkAuth, checkRoles([roleEnum.company]), offerController.updateOffer)
-router.delete("/:offerId", checkAuth, checkRoles([roleEnum.company]), offerController.deleteOffer)
+router.post("/api/offer/", checkAuth, checkRoles([roleEnum.company]), offerController.createOffer)
+router.get("/api/offer/", offerController.getAllOffers)
+router.get("/api/offer/:offerId", offerController.getDetailedOffer)
+router.put("/api/offer/:offerId", checkAuth, checkRoles([roleEnum.company]), offerController.updateOffer)
+router.delete("/api/offer/:offerId", checkAuth, checkRoles([roleEnum.company]), offerController.deleteOffer)
 
 module.exports = router;
  
