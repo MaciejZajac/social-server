@@ -205,7 +205,6 @@ exports.currentUser = async (req, res) => {
 
 exports.loginUser = async (req, res, next) => {
     const { email, password, roleName } = req.body;
-
     if (!email || !password) {
         throw new BadRequestError("Invalid credentials.");
     }

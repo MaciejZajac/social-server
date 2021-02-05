@@ -9,7 +9,6 @@ const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const NotFoundError = require('./api/error/not-found-error');
 const errorHandler = require('./api/middleware/error-handler');
-const DatabaseConnectionError = require('./api/error/database-connection-error');
 
 const app = express();
 
