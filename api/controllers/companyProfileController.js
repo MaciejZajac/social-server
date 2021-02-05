@@ -1,7 +1,7 @@
 const CompanyProfile = require('../models/companyProfileModel');
 const UserModel = require('../models/userModel');
 
-exports.createCompanyProfile = async (req, res) => {
+exports.createCompanyProfile = async (req, res, next) => {
     const { userId } = req.userData;
     const { companyDescription, skillsInCompany } = req.body;
 
@@ -42,7 +42,7 @@ exports.createCompanyProfile = async (req, res) => {
     }
 };
 
-exports.updateCompanyProfile = async (req, res) => {
+exports.updateCompanyProfile = async (req, res, next) => {
     const { userId } = req.userData;
     const { companyName, companyDescription, technologiesUsed, socialMedia } = req.body;
 
@@ -65,7 +65,7 @@ exports.updateCompanyProfile = async (req, res) => {
     }
 };
 
-exports.getCompanyProfiles = async (req, res) => {
+exports.getCompanyProfiles = async (req, res, next) => {
     try {
         const { page = 1, limit = 3 } = req.query;
 
@@ -85,7 +85,7 @@ exports.getCompanyProfiles = async (req, res) => {
     }
 };
 
-exports.getDetailedCompanyProfile = async (req, res) => {
+exports.getDetailedCompanyProfile = async (req, res, next) => {
     const { profileId } = req.params;
 
     try {
@@ -107,7 +107,7 @@ exports.getDetailedCompanyProfile = async (req, res) => {
     }
 };
 
-exports.deleteCompanyProfile = async (req, res) => {
+exports.deleteCompanyProfile = async (req, res, next) => {
     const { profileId } = req.params;
     const { userId } = req.userData;
 

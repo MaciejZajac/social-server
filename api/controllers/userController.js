@@ -9,7 +9,7 @@ const BadRequestError = require('../error/bad-request-error');
 
 
 
-exports.getDevelopers = async (req, res) => {
+exports.getDevelopers = async (req, res, next) => {
     try {
         const { page = 1, limit = 5 } = req.query;
 
@@ -24,7 +24,7 @@ exports.getDevelopers = async (req, res) => {
     }
 };
 
-exports.getUsers = async (req, res) => {
+exports.getUsers = async (req, res, next) => {
     try {
         const { page = 1, limit = 5 } = req.query;
         const userList = await User.find().select("-__v -updatedAt -activeExpires -password -activeToken").limit(limit*1).skip((page - 1) * limit);
@@ -38,7 +38,7 @@ exports.getUsers = async (req, res) => {
     }
 };
 
-exports.registerDeveloper = async (req, res) => {
+exports.registerDeveloper = async (req, res, next) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -71,7 +71,7 @@ exports.registerDeveloper = async (req, res) => {
 };
 
 
-exports.registerUser = async (req, res) => {
+exports.registerUser = async (req, res, next) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -118,7 +118,7 @@ exports.registerUser = async (req, res) => {
     }
 };
 
-exports.activateUser = async (req, res) => {
+exports.activateUser = async (req, res, next) => {
     const {activeToken} = req.params;
 
     try {
@@ -148,7 +148,7 @@ exports.activateUser = async (req, res) => {
     }
 }
 
-exports.updateUser = async (req, res) => {
+exports.updateUser = async (req, res, next) => {
     const { userId } = req.params;
     const reqBody = req.body;
     
@@ -166,7 +166,7 @@ exports.updateUser = async (req, res) => {
 };
 
 
-exports.updateDeveloper = async (req, res) => {
+exports.updateDeveloper = async (req, res, next) => {
     // const { userId } = req.params;
 
     // const updateOps = {};
@@ -189,7 +189,7 @@ exports.updateDeveloper = async (req, res) => {
     // }
 };
 
-exports.currentUser = async (req, res) => {
+exports.currentUser = async (req, res, next) => {
     const {userId} = req.userData;
     try {
         const user = await User.findById(userId).select("-__v -updatedAt -activeExpires -password -activeToken");
@@ -233,6 +233,7 @@ exports.loginUser = async (req, res, next) => {
             email: user.email,
             userId: user._id,
             userRole: user.userRole,
+            location: user.location
         };
         const token = jwt.sign(tokenData, process.env.JWT_KEY, {
             expiresIn: '1h',
@@ -247,7 +248,7 @@ exports.loginUser = async (req, res, next) => {
     }
 };
 
-exports.deleteDeveloper = async (req, res) => {
+exports.deleteDeveloper = async (req, res, next) => {
     try {
         await Developer.findByIdAndDelete(req.params.orderId);
 
@@ -260,7 +261,7 @@ exports.deleteDeveloper = async (req, res) => {
 };
 
 
-exports.deleteUser = async (req, res) => {
+exports.deleteUser = async (req, res, next) => {
     try {
         await User.findByIdAndDelete(req.params.orderId);
 

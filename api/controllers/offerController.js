@@ -1,13 +1,9 @@
 const Offer = require("../models/offerModel");
 const User = require("../models/userModel");
-const CompanyProfile = require("../models/companyProfileModel");
 
-exports.createOffer = async (req, res) => {
-
+exports.createOffer = async (req, res, next) => {
     const { userId, email } = req.userData;
-
-
-
+    console.log("req.body", req.body);
     const offer = new Offer({
         ...req.body,
         owner: userId
@@ -16,12 +12,11 @@ exports.createOffer = async (req, res) => {
     try {
         const newOffer = await offer.save();
         const owner = await User.findOne({email});
-        const companyProfile = await CompanyProfile.findOne({owner: userId});
-        companyProfile.companyOffers.push(newOffer._id);
-        owner.numberOfOffers += 1;
+        // const companyProfile = await CompanyProfile.findOne({owner: userId});
+        // companyProfile.companyOffers.push(newOffer._id);
+        // owner.numberOfOffers += 1;
 
         await owner.save();
-        await companyProfile.save();
 
         return res.status(201).send({
             message: "Offer created",
@@ -33,13 +28,11 @@ exports.createOffer = async (req, res) => {
             }
         });
     } catch (err) {
-        return res.status(500).send({
-            error: err,
-        });
+        next(err);
     }
 }
 
-exports.getAllOffers = async (req, res) => {
+exports.getAllOffers = async (req, res, next) => {
     
     try {
         const { userId, page = 1, limit = 3 } = req.query;
@@ -62,7 +55,7 @@ exports.getAllOffers = async (req, res) => {
     }
 }
 
-exports.getDetailedOffer = async (req, res) => {
+exports.getDetailedOffer = async (req, res, next) => {
     const {offerId} = req.params;
     try {
         const offer = await Offer.findById(offerId).select("-__v").populate("owner");
@@ -80,7 +73,7 @@ exports.getDetailedOffer = async (req, res) => {
     }
 }
 
-exports.updateOffer = async (req, res) => {
+exports.updateOffer = async (req, res, next) => {
     const {offerId} = req.params;
     const { title, description } = req.body;
 
@@ -99,7 +92,7 @@ exports.updateOffer = async (req, res) => {
     }
 }
 
-exports.deleteOffer = async (req, res) => {
+exports.deleteOffer = async (req, res, next) => {
     const {offerId} = req.params;
 
     try {
