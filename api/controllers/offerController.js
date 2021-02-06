@@ -32,7 +32,7 @@ exports.createOffer = async (req, res, next) => {
 };
 
 exports.getAllOffers = async (req, res, next) => {
-    const { userId, page = 1, limit = 3, pensionFrom, pensionTo } = req.query;
+    const { userId, page = 1, limit = 3, pensionFrom, pensionTo, jobTitle } = req.query;
 
     const match = {};
 
@@ -45,9 +45,14 @@ exports.getAllOffers = async (req, res, next) => {
     if (pensionTo) {
         match.pensionTo = { $lte: pensionTo };
     }
+    
+    // if (jobTitle) {
+    //     const regEx = new RegExp(jobTitle, "i");
+    //     match.jobTitle = { $regex: regEx };
+    // }
 
     try {
-        console.log('req.query', req.query);
+
         let offerList;
         let totalCount;
         offerList = await Offer.find(match)
@@ -55,8 +60,6 @@ exports.getAllOffers = async (req, res, next) => {
             .populate('owner', '-password -__v')
             .limit(limit * 1)
             .skip((page - 1) * limit);
-
-        console.log('offerList', offerList);
 
         totalCount = await Offer.countDocuments(match);
 
