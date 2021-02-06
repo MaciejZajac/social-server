@@ -189,6 +189,22 @@ exports.updateDeveloper = async (req, res, next) => {
     // }
 };
 
+exports.refreshToken = async (req, res, next) => {
+    const userData = req.userData;
+    
+    const tokenData = {
+        ...userData
+    };
+    const token = jwt.sign(tokenData, process.env.JWT_KEY, {
+        expiresIn: '1h',
+    });
+    
+    return res.status(200).send({
+        message: 'Token refreshed',
+        token,
+    });
+}
+
 exports.currentUser = async (req, res, next) => {
     const {userId} = req.userData;
     try {

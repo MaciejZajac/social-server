@@ -42,6 +42,7 @@ router.post("/api/user/login", userController.loginUser)
  *                         example: "123451asdg"
  */
 router.get("/api/user/", userController.getUsers)
+router.post("/api/user/refreshtoken", checkAuth, userController.refreshToken)
 router.get("/api/user/current", checkAuth, userController.currentUser)
 router.post("/api/user/register", userController.registerUser)
 router.get("/api/user/active/:activeToken", userController.activateUser)
