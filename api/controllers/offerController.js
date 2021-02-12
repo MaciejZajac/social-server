@@ -91,12 +91,17 @@ exports.getDetailedOffer = async (req, res, next) => {
 
 exports.updateOffer = async (req, res, next) => {
     const { offerId } = req.params;
-    const { title, description } = req.body;
+    console.log("req.body", req.body);
+    const { jobTitle, jobDescription, pensionFrom, pensionTo, requiredSkills } = req.body;
 
     try {
         const offer = await Offer.findById(offerId);
-        offer.title = title;
-        offer.description = description;
+        offer.jobTitle = jobTitle;
+        offer.jobDescription = jobDescription;
+        offer.pensionFrom = pensionFrom;
+        offer.pensionTo = pensionTo;
+        offer.requiredSkills = requiredSkills;
+
         await offer.save();
 
         return res.status(200).send({

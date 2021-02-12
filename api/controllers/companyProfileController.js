@@ -1,9 +1,10 @@
 const CompanyProfile = require('../models/companyProfileModel');
 const UserModel = require('../models/userModel');
+const OfferModel = require('../models/offerModel');
 
 exports.createCompanyProfile = async (req, res, next) => {
     const { userId } = req.userData;
-    const { companyDescription, skillsInCompany } = req.body;
+    const { companyDescription, technologiesUsed } = req.body;
 
     try {
         const foundOffer = await CompanyProfile.findOne({ owner: userId });
@@ -22,15 +23,19 @@ exports.createCompanyProfile = async (req, res, next) => {
             });
         }
         
+        let ownerOffers = await OfferModel.find({owner: userId}).select("_id");
+        ownerOffers = ownerOffers.map(obj => obj._id);
+
         const companyProfile = new CompanyProfile({
-            skillsInCompany,
             companyDescription,
-            companyOffers: [],
+            technologiesUsed,
+            companyOffers: ownerOffers,
             owner: userId,
         });
 
         const profile = await companyProfile.save();
         owner.companyPublicProfile = profile._id;
+
         await owner.save();
 
         return res.status(201).send({

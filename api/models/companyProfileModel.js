@@ -6,7 +6,7 @@ const companyProfile = mongoose.Schema(
             type: String,
             required: true,
         },
-        skillsInCompany: [
+        technologiesUsed: [
             {
                 type: String,
             },
